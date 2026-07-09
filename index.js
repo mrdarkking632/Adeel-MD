@@ -93,7 +93,8 @@ if (text === ".owner") {
   });
     }
     if (text === ".sticker" && msg.message.extendedTextMessage) {
-  try {
+  console.log("Sticker command received");
+      try {
     const quoted = msg.message.extendedTextMessage.contextInfo;
 
     if (!quoted || !quoted.quotedMessage) {
