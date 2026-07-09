@@ -6,7 +6,7 @@ const {
 
 const P = require("pino");
 const qrcode = require("qrcode-terminal");
-const sharp = require("sharp");
+
 async function startBot() {
   const { state, saveCreds } = await useMultiFileAuthState("./auth");
 
