@@ -81,7 +81,7 @@ if (text === ".owner") {
     }
      if (text === ".info") {
       await sock.sendMessage(msg.key.remoteJid, {
-        text: "🤖 *Adeel-MD*\n\n👑 Owner: Adeel\n⚡ Version: 1.0\n💻 Powered by Baileys"
+        text: "🤖 *Adeel-MD*\n\n👑 Owner: Adeel\n⚡ Version: 1.0\n💻 Powered by Adeel☝"
       });
     }
   });
