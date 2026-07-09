@@ -7,6 +7,7 @@ const {
 
 const P = require("pino");
 const qrcode = require("qrcode-terminal");
+const { Image } = require("node-webpmux");
 const fs = require("fs");
 async function startBot() {
   const { state, saveCreds } = await useMultiFileAuthState("./auth");
@@ -90,6 +91,39 @@ if (text === ".owner") {
   await sock.sendMessage(msg.key.remoteJid, {
     text: "❓ *Help Menu*\n\n.ping\n.menu\n.owner\n.alive\n.time\n.info\n.help"
   });
+    }
+    if (text === ".sticker" && msg.message.extendedTextMessage) {
+  try {
+    const quoted = msg.message.extendedTextMessage.contextInfo;
+
+    if (!quoted || !quoted.quotedMessage) {
+      return await sock.sendMessage(msg.key.remoteJid, {
+        text: "🖼️ Image par reply karke .sticker likho"
+      });
+    }
+
+    const quotedMsg = {
+      key: {
+        remoteJid: msg.key.remoteJid,
+        id: quoted.stanzaId,
+        participant: quoted.participant
+      },
+      message: quoted.quotedMessage
+    };
+
+    const buffer = await downloadMediaMessage(
+      quotedMsg,
+      "buffer",
+      {}
+    );
+
+    await sock.sendMessage(msg.key.remoteJid, {
+      sticker: buffer
+    });
+
+  } catch (e) {
+    console.log(e);
+  }
     }
   });
 }
