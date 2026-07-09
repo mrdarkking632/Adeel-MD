@@ -65,6 +65,11 @@ if (text === ".owner") {
     text: "👑 Owner: Adeel"
   });
 }
+    if (text === ".alive") {
+  await sock.sendMessage(msg.key.remoteJid, {
+    text: "🤖 *Adeel Bot*\n\n✅ Status: Online\n⚡ Speed: Fast\n👑 Owner: Adeel"
+  });
+    }
   });
 }
 
