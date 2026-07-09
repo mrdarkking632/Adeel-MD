@@ -6,7 +6,7 @@ const {
 
 const P = require("pino");
 const qrcode = require("qrcode-terminal");
-
+const sharp = require("sharp");
 async function startBot() {
   const { state, saveCreds } = await useMultiFileAuthState("./auth");
 
@@ -88,6 +88,11 @@ if (text === ".owner") {
     if (text === ".help") {
   await sock.sendMessage(msg.key.remoteJid, {
     text: "❓ *Help Menu*\n\n.ping\n.menu\n.owner\n.alive\n.time\n.info\n.help"
+  });
+    }
+    if (text === ".sticker") {
+  await sock.sendMessage(msg.key.remoteJid, {
+    text: "🖼️ Image bhej kar caption me .sticker likho"
   });
     }
   });
