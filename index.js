@@ -1,12 +1,13 @@
 const {
   default: makeWASocket,
   useMultiFileAuthState,
-  DisconnectReason
+  DisconnectReason,
+  downloadMediaMessage
 } = require("@whiskeysockets/baileys");
 
 const P = require("pino");
 const qrcode = require("qrcode-terminal");
-
+const Jimp = require("jimp");
 async function startBot() {
   const { state, saveCreds } = await useMultiFileAuthState("./auth");
 
@@ -90,11 +91,20 @@ if (text === ".owner") {
     text: "❓ *Help Menu*\n\n.ping\n.menu\n.owner\n.alive\n.time\n.info\n.help"
   });
     }
-    if (text === ".sticker") {
+   if (text === ".sticker" && msg.message.imageMessage) {
+  const buffer = await downloadMediaMessage(
+    msg,
+    "buffer",
+    {}
+  );
+
+  const image = await Jimp.read(buffer);
+  const sticker = await image.getBufferAsync("image/webp");
+
   await sock.sendMessage(msg.key.remoteJid, {
-    text: "🖼️ Image bhej kar caption me .sticker likho"
+    sticker: sticker
   });
-    }
+   }
   });
 }
 
