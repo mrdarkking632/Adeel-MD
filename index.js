@@ -57,7 +57,7 @@ async function startBot() {
 
     if (text === ".menu") {
       await sock.sendMessage(msg.key.remoteJid, {
-        text: "🤖 *Adeel Bot*\n\n📋 Commands:\n.ping\n.menu"
+       text: "🤖 *Adeel Bot*\n\n📋 Commands:\n.ping\n.menu\n.owner\n.alive"
       });
     }
 if (text === ".owner") {
@@ -70,3 +70,4 @@ if (text === ".owner") {
 
 startBot();
 
+ 
