@@ -79,12 +79,13 @@ if (text === ".owner") {
     text: "🕒 Pakistan Time:\n" + time
   });
     }
-    if (text === ".info") {
-  await sock.sendMessage(msg.key.remoteJid, {
-    text: "🤖 *Adeel-MD*\n\n👑 Owner: Adeel\n⚡ Version: 1.0\n💻 Powered by Baileys"
-  });
+     if (text === ".info") {
+      await sock.sendMessage(msg.key.remoteJid, {
+        text: "🤖 *Adeel-MD*\n\n👑 Owner: Adeel\n⚡ Version: 1.0\n💻 Powered by Baileys"
+      });
     }
   });
+}
 
 startBot();
 
