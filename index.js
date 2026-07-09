@@ -117,7 +117,7 @@ if (text === ".owner") {
       "buffer",
       {}
     );
-
+console.log("Image downloaded:", buffer.length);
     await sock.sendMessage(msg.key.remoteJid, {
       sticker: buffer
     });
