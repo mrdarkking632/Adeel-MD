@@ -85,6 +85,11 @@ if (text === ".owner") {
         text: "🤖 *Adeel-MD*\n\n👑 Owner: Adeel\n⚡ Version: 1.0\n💻 Powered by Adeel☝"
       });
     }
+    if (text === ".help") {
+  await sock.sendMessage(msg.key.remoteJid, {
+    text: "❓ *Help Menu*\n\n.ping\n.menu\n.owner\n.alive\n.time\n.info\n.help"
+  });
+    }
   });
 }
 
