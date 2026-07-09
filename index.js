@@ -57,7 +57,7 @@ async function startBot() {
 
     if (text === ".menu") {
       await sock.sendMessage(msg.key.remoteJid, {
-       text: "🤖 *Adeel Bot*\n\n📋 Commands:\n.ping\n.menu\n.owner\n.alive"
+      text: "🤖 *Adeel Bot*\n\n📋 Commands:\n.ping\n.menu\n.owner\n.alive\n.time\n.info"
       });
     }
 if (text === ".owner") {
@@ -70,8 +70,21 @@ if (text === ".owner") {
     text: "🤖 *Adeel Bot*\n\n✅ Status: Online\n⚡ Speed: Fast\n👑 Owner: Adeel"
   });
     }
+    if (text === ".time") {
+  const time = new Date().toLocaleString("en-PK", {
+    timeZone: "Asia/Karachi"
   });
-}
+
+  await sock.sendMessage(msg.key.remoteJid, {
+    text: "🕒 Pakistan Time:\n" + time
+  });
+    }
+    if (text === ".info") {
+  await sock.sendMessage(msg.key.remoteJid, {
+    text: "🤖 *Adeel-MD*\n\n👑 Owner: Adeel\n⚡ Version: 1.0\n💻 Powered by Baileys"
+  });
+    }
+  });
 
 startBot();
 
