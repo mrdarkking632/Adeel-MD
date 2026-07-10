@@ -9,6 +9,8 @@ const P = require("pino");
 const qrcode = require("qrcode-terminal");
 const { Image } = require("node-webpmux");
 const fs = require("fs");
+const { exec } = require("child_process");
+const path = require("path");
 async function startBot() {
   const { state, saveCreds } = await useMultiFileAuthState("./auth");
 
