@@ -47,7 +47,7 @@ async function startBot() {
     const msg = messages[0];
 
   if (!msg.message) return;
-
+console.log("📩 Message event received");
 const text =
   msg.message.conversation ||
   msg.message.extendedTextMessage?.text ||
