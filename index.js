@@ -11,6 +11,8 @@ const { Image } = require("node-webpmux");
 const fs = require("fs");
 const { exec } = require("child_process");
 const path = require("path");
+const yts = require("yt-search");
+const ytdl = require("@distube/ytdl-core");
 async function startBot() {
   const { state, saveCreds } = await useMultiFileAuthState("./auth");
 
