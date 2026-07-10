@@ -119,10 +119,27 @@ if (text === ".owner") {
       "buffer",
       {}
     );
+        const inputPath = path.join(__dirname, "temp", "input.jpg");
+const outputPath = path.join(__dirname, "temp", "output.webp");
+
+fs.writeFileSync(inputPath, buffer);
 console.log("Image downloaded:", buffer.length);
-    await sock.sendMessage(msg.key.remoteJid, {
-      sticker: buffer
-    });
+    await new Promise((resolve, reject) => {
+  exec(
+    `ffmpeg -y -i "${inputPath}" -vf "scale=512:512:force_original_aspect_ratio=decrease,pad=512:512:(ow-iw)/2:(oh-ih)/2:color=white" "${outputPath}"`,
+    (err) => {
+      if (err) return reject(err);
+
+      sock.sendMessage(msg.key.remoteJid, {
+        sticker: fs.readFileSync(outputPath)
+      }).then(() => {
+        fs.unlinkSync(inputPath);
+        fs.unlinkSync(outputPath);
+        resolve();
+      }).catch(reject);
+    }
+  );
+});   
 
   } catch (e) {
     console.log(e);
