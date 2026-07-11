@@ -150,10 +150,13 @@ if (text === ".owner") {
     });
   }
 
-  await sock.sendMessage(msg.key.remoteJid, {
-    text: "🔍 Video dhoond raha hoon..."
-  });
+await sock.sendMessage(msg.key.remoteJid, {
+  text: "🔍 Video dhoond raha hoon..."
+});
 
+await sock.sendMessage(msg.key.remoteJid, {
+  text: "📥 Downloading video..."
+});
   try {
     const result = await yts(query);
 
@@ -166,8 +169,10 @@ if (text === ".owner") {
     const video = result.videos[0];
     const file = "./temp/video.mp4";
 
-    execSync(`yt-dlp -f "mp4" -o "${file}" "${video.url}"`);
-
+    execSync(`yt-dlp -f "bv*+ba/b" --merge-output-format mp4 -o "${file}" "${video.url}"`);
+await sock.sendMessage(msg.key.remoteJid, {
+  text: "📤 Video bhej raha hoon..."
+});
     await sock.sendMessage(msg.key.remoteJid, {
       video: fs.readFileSync(file),
       mimetype: "video/mp4",
