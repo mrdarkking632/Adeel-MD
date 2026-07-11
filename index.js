@@ -120,19 +120,23 @@ if (text === ".owner") {
     }
 
     const video = result.videos[0];
+    const file = "./temp/song.mp3";
+
+    execSync(`yt-dlp -x --audio-format mp3 -o "${file}" "${video.url}"`);
 
     await sock.sendMessage(msg.key.remoteJid, {
-      text:
-        `🎵 *${video.title}*\n` +
-        `⏱ ${video.timestamp}\n\n` +
-        `📺 ${video.url}\n\n` +
-        `⚠️ Audio download feature next step mein add karenge.`
+      audio: fs.readFileSync(file),
+      mimetype: "audio/mpeg",
+      fileName: video.title + ".mp3"
     });
 
-  } catch (err) {
-    console.log(err);
+    fs.unlinkSync(file);
+
+  } catch (e) {
+    console.log(e);
+
     await sock.sendMessage(msg.key.remoteJid, {
-      text: "❌ Error aagaya."
+      text: "❌ Audio download failed."
     });
   }
     }
