@@ -96,6 +96,19 @@ if (text === ".owner") {
     text: "❓ *Help Menu*\n\n.ping\n.menu\n.owner\n.alive\n.time\n.info\n.help"
   });
     }
+    if (text.startsWith(".music ")) {
+  const query = text.replace(".music", "").trim();
+
+  if (!query) {
+    return await sock.sendMessage(msg.key.remoteJid, {
+      text: "🎵 Example: .music pasoori"
+    });
+  }
+
+  await sock.sendMessage(msg.key.remoteJid, {
+    text: "🎵 Music feature is being added..."
+  });
+    }
     if (text === ".sticker" && msg.message.extendedTextMessage) {
   console.log("Sticker command received");
       try {
