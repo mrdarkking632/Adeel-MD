@@ -13,6 +13,7 @@ const { exec } = require("child_process");
 const path = require("path");
 const yts = require("yt-search");
 const ytdl = require("@distube/ytdl-core");
+const { execSync } = require("child_process");
 async function startBot() {
   const { state, saveCreds } = await useMultiFileAuthState("./auth");
 
