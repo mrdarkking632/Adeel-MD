@@ -106,8 +106,34 @@ if (text === ".owner") {
   }
 
   await sock.sendMessage(msg.key.remoteJid, {
-    text: "🎵 Music feature is being added..."
+    text: "🔍 Song dhoond raha hoon..."
   });
+
+  try {
+    const result = await yts(query);
+
+    if (!result.videos.length) {
+      return await sock.sendMessage(msg.key.remoteJid, {
+        text: "❌ Song nahi mila."
+      });
+    }
+
+    const video = result.videos[0];
+
+    await sock.sendMessage(msg.key.remoteJid, {
+      text:
+        `🎵 *${video.title}*\n` +
+        `⏱ ${video.timestamp}\n\n` +
+        `📺 ${video.url}\n\n` +
+        `⚠️ Audio download feature next step mein add karenge.`
+    });
+
+  } catch (err) {
+    console.log(err);
+    await sock.sendMessage(msg.key.remoteJid, {
+      text: "❌ Error aagaya."
+    });
+  }
     }
     if (text === ".sticker" && msg.message.extendedTextMessage) {
   console.log("Sticker command received");
