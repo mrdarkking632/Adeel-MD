@@ -63,11 +63,12 @@ if (msg.key.fromMe && !text.startsWith(".")) return;
       });
     }
 
-    if (text === ".menu") {
-      await sock.sendMessage(msg.key.remoteJid, {
-      text: "🤖 *Adeel Bot*\n\n📋 Commands:\n.ping\n.menu\n.owner\n.alive\n.time\n.info"
-      });
-    }
+  if (text === ".menu") {
+  await sock.sendMessage(msg.key.remoteJid, {
+    text: "🤖 *Adeel Bot*\n\n📋 Commands:\n.ping\n.menu\n.owner\n.alive\n.time\n.info\n.music\n.video\n.sticker"
+  });
+}
+
 if (text === ".owner") {
   await sock.sendMessage(msg.key.remoteJid, {
     text: "👑 Owner: Adeel"
@@ -137,6 +138,49 @@ if (text === ".owner") {
 
     await sock.sendMessage(msg.key.remoteJid, {
       text: "❌ Audio download failed."
+    });
+  }
+    }
+    if (text.startsWith(".video ")) {
+  const query = text.replace(".video", "").trim();
+
+  if (!query) {
+    return await sock.sendMessage(msg.key.remoteJid, {
+      text: "🎥 Example: .video pasoori"
+    });
+  }
+
+  await sock.sendMessage(msg.key.remoteJid, {
+    text: "🔍 Video dhoond raha hoon..."
+  });
+
+  try {
+    const result = await yts(query);
+
+    if (!result.videos.length) {
+      return await sock.sendMessage(msg.key.remoteJid, {
+        text: "❌ Video nahi mila."
+      });
+    }
+
+    const video = result.videos[0];
+    const file = "./temp/video.mp4";
+
+    execSync(`yt-dlp -f "mp4" -o "${file}" "${video.url}"`);
+
+    await sock.sendMessage(msg.key.remoteJid, {
+      video: fs.readFileSync(file),
+      mimetype: "video/mp4",
+      fileName: video.title + ".mp4"
+    });
+
+    fs.unlinkSync(file);
+
+  } catch (err) {
+    console.log(err);
+
+    await sock.sendMessage(msg.key.remoteJid, {
+      text: "❌ Video download failed."
     });
   }
     }
