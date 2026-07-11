@@ -54,7 +54,7 @@ const text =
   msg.message.conversation ||
   msg.message.extendedTextMessage?.text ||
   "";
-
+console.log("TEXT:", text);
 if (msg.key.fromMe && !text.startsWith(".")) return;
     if (text === ".ping") {
       await sock.sendMessage(msg.key.remoteJid, {
