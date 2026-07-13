@@ -1,4 +1,3 @@
-
 module.exports = {
     name: "weather",
 
@@ -12,15 +11,30 @@ module.exports = {
             });
         }
 
-        await sock.sendMessage(msg.key.remoteJid, {
-            text: `🌤️ Weather Search
+        try {
 
-📍 Location: ${city}
+            const res = await fetch(
+                `https://wttr.in/${encodeURIComponent(city)}?format=3`
+            );
 
-⏳ Checking weather...
+            const data = await res.text();
 
-🥱 Adeel-MD`
-        });
+            await sock.sendMessage(msg.key.remoteJid, {
+                text: `🌤️ Adeel-MD Weather
 
+📍 City: ${city}
+
+${data}
+
+🥸 Powered By Adeel-MD`
+            });
+
+        } catch (e) {
+
+            await sock.sendMessage(msg.key.remoteJid, {
+                text: "❌ Weather service error"
+            });
+
+        }
     }
 };
