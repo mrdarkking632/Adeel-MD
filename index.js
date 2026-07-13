@@ -24,10 +24,13 @@ async function startBot() {
 if (!state.creds.registered) {
     const phoneNumber = "923288835468";
 
-    setTimeout(async () => {
+    try {
+        await new Promise(resolve => setTimeout(resolve, 5000));
         const code = await sock.requestPairingCode(phoneNumber);
         console.log("📱 Pairing Code:", code);
-    }, 3000);
+    } catch (err) {
+        console.log("❌ Pairing Error:", err.message);
+    }
 }
     sock.ev.on("creds.update", saveCreds);
 
