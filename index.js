@@ -31,7 +31,9 @@ if (!state.creds.registered) {
 }
     sock.ev.on("creds.update", saveCreds);
 
-    connectionHandler(sock, startBot);
+    sock.ev.on("connection.update", (update) => {
+    connectionHandler.handleConnection(update);
+});
 
     console.log("🤖 Adeel-MD Starting...");
         sock.ev.on("messages.upsert", async ({ messages }) => {
