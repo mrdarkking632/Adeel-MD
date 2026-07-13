@@ -9,7 +9,7 @@ const qrcode = require("qrcode-terminal");
 
 const { loadCommands, commands } = require("./handlers/command");
 const connectionHandler = require("./handlers/connection");
-
+const messageDB = require("./database/messages");
 loadCommands();
 
 async function startBot() {
@@ -42,7 +42,7 @@ if (!state.creds.registered) {
         sock.ev.on("messages.upsert", async ({ messages }) => {
 
         const msg = messages[0];
-
+messageDB.save(msg.key.id, msg);
         if (!msg.message) return;
 
         const text =
