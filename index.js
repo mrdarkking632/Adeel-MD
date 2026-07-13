@@ -32,7 +32,7 @@ if (!state.creds.registered) {
     sock.ev.on("creds.update", saveCreds);
 
     sock.ev.on("connection.update", (update) => {
-    connectionHandler.handleConnection(update);
+    connectionHandler(update, startBot);
 });
 
     console.log("🤖 Adeel-MD Starting...");
