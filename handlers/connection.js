@@ -1,39 +1,14 @@
-const { DisconnectReason } = require("@whiskeysockets/baileys");
+if (connection === "close") {
+    console.log("Disconnect reason:", lastDisconnect);
 
-module.exports = function connectionHandler(sock, startBot) {
+    const statusCode = lastDisconnect?.error?.output?.statusCode;
+    console.log("Status Code:", statusCode);
 
-    sock.ev.on("connection.update", (update) => {
+    if (statusCode === DisconnectReason.loggedOut) {
+        console.log("🚪 Logged Out");
+        return;
+    }
 
-        const { connection, lastDisconnect } = update;
-
-        if (connection === "open") {
-            console.clear();
-            console.log(`
-╔══════════════════════════════╗
-║      👑 ADEEL-MD ONLINE      ║
-╠══════════════════════════════╣
-║ ✅ Status : Connected        ║
-║ ☁️ Server : Heroku           ║
-║ 🚀 Version : 3.0.0           ║
-╚══════════════════════════════╝
-`);
-        }
-
-        if (connection === "close") {
-
-            const shouldReconnect =
-                lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
-
-            console.log("❌ Connection Closed");
-
-            if (shouldReconnect) {
-                console.log("🔄 Reconnecting...");
-                startBot();
-            } else {
-                console.log("🚪 Logged Out");
-            }
-        }
-
-    });
-
-};
+    console.log("❌ Connection Closed. Reconnecting...");
+    setTimeout(() => startBot(), 3000);
+}
