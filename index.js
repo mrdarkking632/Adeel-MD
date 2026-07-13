@@ -1,35 +1,85 @@
-const { DisconnectReason } = require("@whiskeysockets/baileys");
+const {
+    default: makeWASocket,
+    useMultiFileAuthState,
+    DisconnectReason
+} = require("@whiskeysockets/baileys");
 
-module.exports = function connectionHandler(sock, startBot) {
-    sock.ev.on("connection.update", ({ connection, lastDisconnect }) => {
+const P = require("pino");
+const qrcode = require("qrcode-terminal");
 
-        if (connection === "connecting") {
-            console.log("🔄 Connecting...");
-        }
+const { loadCommands, commands } = require("./handlers/command");
+const connectionHandler = require("./handlers/connection");
 
-        if (connection === "open") {
-            console.clear();
-            console.log(`
-╔══════════════════════════════╗
-║        👑 ADEEL-MD 👑        ║
-╠══════════════════════════════╣
-║ ✅ Status  : Connected       ║
-║ 🚀 Version : 3.0.0           ║
-╚══════════════════════════════╝
-`);
-        }
+loadCommands();
 
-        if (connection === "close") {
-            const statusCode =
-                lastDisconnect?.error?.output?.statusCode;
+async function startBot() {
 
-            if (statusCode === DisconnectReason.loggedOut) {
-                console.log("🚪 Logged Out. Scan QR again.");
-                return;
-            }
+    const { state, saveCreds } = await useMultiFileAuthState("./auth");
 
-            console.log("❌ Connection Closed. Reconnecting...");
-            setTimeout(() => startBot(), 3000);
-        }
+    const sock = makeWASocket({
+        auth: state,
+        logger: P({ level: "silent" })
     });
-};
+
+    sock.ev.on("creds.update", saveCreds);
+
+    connectionHandler(sock, startBot);
+
+    console.log("🤖 Adeel-MD Starting...");
+        sock.ev.on("messages.upsert", async ({ messages }) => {
+
+        const msg = messages[0];
+
+        if (!msg.message) return;
+
+        const text =
+            msg.message.conversation ||
+            msg.message.extendedTextMessage?.text ||
+            "";
+
+        if (!text.startsWith(".")) return;
+
+        const args = text
+            .slice(1)
+            .trim()
+            .split(/ +);
+
+        const commandName = args.shift().toLowerCase();
+
+        const command = commands.get(commandName);
+
+        if (!command) return;
+
+        try {
+
+            await command.execute(
+                sock,
+                msg,
+                args
+            );
+
+        } catch (error) {
+
+            console.log("Command Error:", error);
+
+            await sock.sendMessage(
+                msg.key.remoteJid,
+                {
+                    text: "❌ Command Error"
+                }
+            );
+
+        }
+
+    });
+    }
+
+startBot();
+
+process.on("uncaughtException", (err) => {
+    console.log("❌ Error:", err);
+});
+
+process.on("unhandledRejection", (err) => {
+    console.log("❌ Promise Error:", err);
+});
