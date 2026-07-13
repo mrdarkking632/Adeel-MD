@@ -1,4 +1,6 @@
+
 const path = require("path");
+const config = require("../config");
 module.exports = {
     name: "menu",
 
@@ -67,10 +69,10 @@ ${greeting}, ${username} 👋
 
 ╭────〔 🤖 BOT INFO 〕────╮
 │ 👤 User    : ${username}
-│ 👑 Owner   : Adeel
-│ ⚡ Prefix  : .
+│ │ 👑 Owner   : ${config.OWNER_NAME}
+│ │ ⚡ Prefix  : ${config.PREFIX}
 │ ☁️ Server  : Heroku
-│ 📦 Version : 3.0.0
+│ │ 📦 Version : ${config.VERSION}
 │ 🟢 Status  : Online
 │ 🕒 Time    : ${time}
 │ 📅 Date    : ${date}
@@ -94,7 +96,7 @@ ${greeting}, ${username} 👋
 ┃ ${theme}
 ╰────────────────────╯
 
-👑 Powered By Adeel-MD
+👑 Powered By ${config.BOT_NAME}
 ⚡ Fast • Secure • Premium
 `
         });
