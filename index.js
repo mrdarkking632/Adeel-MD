@@ -1,55 +1,35 @@
-const {
-    default: makeWASocket,
-    useMultiFileAuthState,
-    DisconnectReason
-} = require("@whiskeysockets/baileys");
+const { DisconnectReason } = require("@whiskeysockets/baileys");
 
-const P = require("pino");
+module.exports = function connectionHandler(sock, startBot) {
+    sock.ev.on("connection.update", ({ connection, lastDisconnect }) => {
 
-const config = require("./config");
+        if (connection === "connecting") {
+            console.log("🔄 Connecting...");
+        }
 
-const { loadCommands } = require("./handlers/command");
-const messageHandler = require("./handlers/message");
-const connectionHandler = require("./handlers/connection");
+        if (connection === "open") {
+            console.clear();
+            console.log(`
+╔══════════════════════════════╗
+║        👑 ADEEL-MD 👑        ║
+╠══════════════════════════════╣
+║ ✅ Status  : Connected       ║
+║ 🚀 Version : 3.0.0           ║
+╚══════════════════════════════╝
+`);
+        }
 
-async function startBot() {
+        if (connection === "close") {
+            const statusCode =
+                lastDisconnect?.error?.output?.statusCode;
 
-    const { state, saveCreds } = await useMultiFileAuthState("./auth");
+            if (statusCode === DisconnectReason.loggedOut) {
+                console.log("🚪 Logged Out. Scan QR again.");
+                return;
+            }
 
-    const sock = makeWASocket({
-        auth: state,
-        logger: P({ level: "silent" }),
-        browser: ["Adeel-MD", "Chrome", "1.0.0"]
+            console.log("❌ Connection Closed. Reconnecting...");
+            setTimeout(() => startBot(), 3000);
+        }
     });
-
-    sock.ev.on("creds.update", saveCreds);
-
-    loadCommands();
-
-    connectionHandler(sock, startBot);
-
-    sock.ev.on("messages.upsert", async ({ messages }) => {
-
-        const msg = messages[0];
-
-        if (!msg) return;
-
-        if (msg.key.fromMe) return;
-
-        await messageHandler(sock, msg);
-
-    });
-      
-
-}
-startBot().catch((err) => {
-    console.log("❌ Bot Crash:", err);
-});
-
-process.on("uncaughtException", (err) => {
-    console.log("❌ Uncaught Exception:", err);
-});
-
-process.on("unhandledRejection", (reason) => {
-    console.log("❌ Unhandled Rejection:", reason);
-});
+};
