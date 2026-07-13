@@ -26,7 +26,7 @@ async function startBot() {
 
     loadCommands();
 
-    connectionHandler(sock);
+    connectionHandler(sock, startBot);
 
     sock.ev.on("messages.upsert", async ({ messages }) => {
 
@@ -39,39 +39,7 @@ async function startBot() {
         await messageHandler(sock, msg);
 
     });
-      sock.ev.on("connection.update", async (update) => {
-
-        const { connection, lastDisconnect } = update;
-
-        if (connection === "open") {
-            console.log(`
-╔══════════════════════════════╗
-║      👑 ADEEL-MD ONLINE      ║
-╠══════════════════════════════╣
-║ ✅ Status : Connected        ║
-║ ☁️ Server : Heroku           ║
-║ 🚀 Version: 3.0.0            ║
-╚══════════════════════════════╝
-`);
-        }
-
-        if (connection === "close") {
-
-            const shouldReconnect =
-                lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
-
-            console.log("❌ Connection Closed");
-
-            if (shouldReconnect) {
-                console.log("🔄 Reconnecting...");
-                startBot();
-            } else {
-                console.log("🚪 Logged Out");
-            }
-
-        }
-
-    });
+      
 
 }
 startBot().catch((err) => {
