@@ -4,29 +4,39 @@ const path = require("path");
 const commands = new Map();
 
 function loadCommands() {
+
     commands.clear();
 
     const base = path.join(__dirname, "..", "commands");
 
-    const folders = fs.readdirSync(base);
+    function scanFolder(folder) {
 
-    for (const folder of folders) {
-        const folderPath = path.join(base, folder);
+        const items = fs.readdirSync(folder);
 
-        if (!fs.statSync(folderPath).isDirectory()) continue;
+        for (const item of items) {
 
-        const files = fs.readdirSync(folderPath);
+            const fullPath = path.join(folder, item);
 
-        for (const file of files) {
-            if (!file.endsWith(".js")) continue;
+            if (fs.statSync(fullPath).isDirectory()) {
 
-            const command = require(path.join(folderPath, file));
+                scanFolder(fullPath);
 
-            if (command.name) {
-                commands.set(command.name, command);
+            } else if (item.endsWith(".js")) {
+
+                const command = require(fullPath);
+
+                if (command.name) {
+                    commands.set(
+                        command.name,
+                        command
+                    );
+                }
+
             }
         }
     }
+
+    scanFolder(base);
 
     console.log(`✅ Loaded ${commands.size} commands`);
 }
