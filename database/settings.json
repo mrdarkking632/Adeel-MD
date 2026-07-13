@@ -1,0 +1,11 @@
+{
+  "public": true,
+  "autoread": false,
+  "autoreact": false,
+  "antidelete": false,
+  "antilink": false,
+  "anticall": false,
+  "status": false,
+  "welcome": true,
+  "goodbye": true
+}
