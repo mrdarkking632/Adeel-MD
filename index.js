@@ -1,338 +1,87 @@
 const {
-  default: makeWASocket,
-  useMultiFileAuthState,
-  DisconnectReason,
-  downloadMediaMessage
+    default: makeWASocket,
+    useMultiFileAuthState,
+    DisconnectReason
 } = require("@whiskeysockets/baileys");
 
 const P = require("pino");
-const qrcode = require("qrcode-terminal");
-const { Image } = require("node-webpmux");
-const fs = require("fs");
-const { exec } = require("child_process");
-const path = require("path");
-const yts = require("yt-search");
-const ytdl = require("@distube/ytdl-core");
-const { execSync } = require("child_process");
+
+const config = require("./config");
+
+const { loadCommands } = require("./handlers/command");
+const messageHandler = require("./handlers/message");
+const connectionHandler = require("./handlers/connection");
+
 async function startBot() {
-  const { state, saveCreds } = await useMultiFileAuthState("./auth");
 
-  const sock = makeWASocket({
-    auth: state,
-    logger: P({ level: "silent" })
-  });
+    const { state, saveCreds } = await useMultiFileAuthState("./auth");
 
-  sock.ev.on("creds.update", saveCreds);
+    const sock = makeWASocket({
+        auth: state,
+        logger: P({ level: "silent" }),
+        browser: ["Adeel-MD", "Chrome", "1.0.0"]
+    });
 
-  sock.ev.on("connection.update", ({ connection, lastDisconnect, qr }) => {
-    if (qr) {
-      console.log("📱 Scan this QR:");
-      qrcode.generate(qr, { small: true });
-    }
+    sock.ev.on("creds.update", saveCreds);
 
-    if (connection === "open") {
-      console.log("✅ Bot Connected Successfully!");
-    }
+    loadCommands();
 
-    if (connection === "close") {
-      const shouldReconnect =
-        lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
+    connectionHandler(sock);
 
-      console.log("❌ Connection Closed. Reconnecting...");
+    sock.ev.on("messages.upsert", async ({ messages }) => {
 
-      if (shouldReconnect) {
-        startBot();
-      }
-    }
-  });
+        const msg = messages[0];
 
-  sock.ev.on("messages.upsert", async ({ messages }) => {
-    const msg = messages[0];
+        if (!msg) return;
 
-  if (!msg.message) return;
-console.log("📩 Message event received");
-const text =
-  msg.message.conversation ||
-  msg.message.extendedTextMessage?.text ||
-  "";
-console.log("TEXT:", text);
-if (msg.key.fromMe && !text.startsWith(".")) return;
-    if (text === ".ping") {
-      await sock.sendMessage(msg.key.remoteJid, {
-        text: "🏓 Pong! Bot Online ✅"
-      });
-    }
+        if (msg.key.fromMe) return;
 
-if (text === ".menu") {
+        await messageHandler(sock, msg);
 
-const hour = new Date().toLocaleString("en-US", {
-    timeZone: "Asia/Karachi",
-    hour: "numeric",
-    hour12: false
-});
+    });
+      sock.ev.on("connection.update", async (update) => {
 
-let greeting;
+        const { connection, lastDisconnect } = update;
 
-if (hour >= 5 && hour < 12) greeting = "🌅 Good Morning";
-else if (hour >= 12 && hour < 17) greeting = "☀️ Good Afternoon";
-else if (hour >= 17 && hour < 20) greeting = "🌆 Good Evening";
-else greeting = "🌙 Good Night";
+        if (connection === "open") {
+            console.log(`
+╔══════════════════════════════╗
+║      👑 ADEEL-MD ONLINE      ║
+╠══════════════════════════════╣
+║ ✅ Status : Connected        ║
+║ ☁️ Server : Heroku           ║
+║ 🚀 Version: 3.0.0            ║
+╚══════════════════════════════╝
+`);
+        }
 
-const quotes = [
-"🚀 Dream Big. Build Bigger.",
-"💎 Code. Create. Conquer.",
-"⚡ Innovation Starts Here.",
-"❤️ Built With Passion.",
-"🔥 Never Stop Learning.",
-"🌟 Success Begins Today.",
-"👑 Excellence Is A Habit.",
-"🎯 Stay Focused. Stay Strong."
-];
+        if (connection === "close") {
 
-const themes = [
-"💙 Blue Premium",
-"💜 Purple Royal",
-"💚 Emerald",
-"❤️ Crimson",
-"🖤 Midnight",
-"💛 Gold Elite"
-];
+            const shouldReconnect =
+                lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
 
-const quote = quotes[Math.floor(Math.random() * quotes.length)];
-const theme = themes[Math.floor(Math.random() * themes.length)];
+            console.log("❌ Connection Closed");
 
-const username =
-msg.pushName ||
-msg.key.participant?.split("@")[0] ||
-msg.key.remoteJid.split("@")[0];
+            if (shouldReconnect) {
+                console.log("🔄 Reconnecting...");
+                startBot();
+            } else {
+                console.log("🚪 Logged Out");
+            }
 
-const time = new Date().toLocaleTimeString("en-PK", {
-timeZone: "Asia/Karachi"
-});
+        }
 
-const date = new Date().toLocaleDateString("en-PK", {
-timeZone: "Asia/Karachi"
-});
+    });
 
-await sock.sendMessage(msg.key.remoteJid,{
-text:`
-╭───────────────────────────────────╮
-│        👑 𝗔𝗗𝗘𝗘𝗟 - 𝗠𝗗 👑
-│      『 𝗣𝗥𝗘𝗠𝗜𝗨𝗠 𝗘𝗗𝗜𝗧𝗜𝗢𝗡 』
-╰───────────────────────────────────╯
-
-      ${greeting}, ${username} 👋
-
-╭────────〔 🤖 BOT INFO 〕────────╮
-│ 👤 User    : ${username}
-│ 👑 Owner   : Adeel
-│ ⚡ Prefix  : .
-│ ☁️ Server  : Heroku
-│ 📦 Version : 3.0.0
-│ 🟢 Status  : Online
-│ 🕒 Time    : ${time}
-│ 📅 Date    : ${date}
-╰─────────────────────────────────╯
-
-╭────────〔 ⚡ COMMANDS 〕────────╮
-┃ 🎵 Downloader
-┃ 🖼️ Sticker
-┃ 🤖 AI
-┃ 👥 Group
-┃ 🛡️ Admin
-┃ ⚙️ Utility
-┃ 🎭 Fun
-┃ 🎮 Games
-╰─────────────────────────────────╯
-
-╭────────〔 💎 TODAY'S QUOTE 〕────╮
-┃ ${quote}
-╰─────────────────────────────────╯
-
-╭────────〔 🎨 THEME 〕───────────╮
-┃ ${theme}
-╰─────────────────────────────────╯
-
-╭───────────────────────────────────╮
-│ 👑 Powered By Adeel-MD
-│ ⚡ Fast • Secure • Premium
-╰───────────────────────────────────╯`
-});
 }
-if (text === ".owner") {
-  await sock.sendMessage(msg.key.remoteJid, {
-    text: "👑 Owner: Adeel"
-  });
-}
-    if (text === ".alive") {
-  await sock.sendMessage(msg.key.remoteJid, {
-    text: "🤖 *Adeel Bot*\n\n✅ Status: Online\n⚡ Speed: Fast\n👑 Owner: Adeel"
-  });
-    }
-    if (text === ".time") {
-  const time = new Date().toLocaleString("en-PK", {
-    timeZone: "Asia/Karachi"
-  });
-
-  await sock.sendMessage(msg.key.remoteJid, {
-    text: "🕒 Pakistan Time:\n" + time
-  });
-    }
-     if (text === ".info") {
-      await sock.sendMessage(msg.key.remoteJid, {
-        text: "🤖 *Adeel-MD*\n\n👑 Owner: Adeel\n⚡ Version: 1.0\n💻 Powered by Adeel☝"
-      });
-    }
-    if (text === ".help") {
-  await sock.sendMessage(msg.key.remoteJid, {
-    text: "❓ *Help Menu*\n\n.ping\n.menu\n.owner\n.alive\n.time\n.info\n.help"
-  });
-    }
-    if (text.startsWith(".music ")) {
-  const query = text.replace(".music", "").trim();
-
-  if (!query) {
-    return await sock.sendMessage(msg.key.remoteJid, {
-      text: "🎵 Example: .music pasoori"
-    });
-  }
-
-  await sock.sendMessage(msg.key.remoteJid, {
-    text: "🔍 Song dhoond raha hoon..."
-  });
-
-  try {
-    const result = await yts(query);
-
-    if (!result.videos.length) {
-      return await sock.sendMessage(msg.key.remoteJid, {
-        text: "❌ Song nahi mila."
-      });
-    }
-
-    const video = result.videos[0];
-    const file = "./temp/song.mp3";
-
-    execSync(`yt-dlp -x --audio-format mp3 -o "${file}" "${video.url}"`);
-
-    await sock.sendMessage(msg.key.remoteJid, {
-      audio: fs.readFileSync(file),
-      mimetype: "audio/mpeg",
-      fileName: video.title + ".mp3"
-    });
-
-    fs.unlinkSync(file);
-
-  } catch (e) {
-    console.log(e);
-
-    await sock.sendMessage(msg.key.remoteJid, {
-      text: "❌ Audio download failed."
-    });
-  }
-    }
-    if (text.startsWith(".video ")) {
-  const query = text.replace(".video", "").trim();
-
-  if (!query) {
-    return await sock.sendMessage(msg.key.remoteJid, {
-      text: "🎥 Example: .video pasoori"
-    });
-  }
-
-await sock.sendMessage(msg.key.remoteJid, {
-  text: "🔍 Video dhoond raha hoon..."
+startBot().catch((err) => {
+    console.log("❌ Bot Crash:", err);
 });
 
-await sock.sendMessage(msg.key.remoteJid, {
-  text: "📥 Downloading video..."
+process.on("uncaughtException", (err) => {
+    console.log("❌ Uncaught Exception:", err);
 });
-  try {
-    const result = await yts(query);
 
-    if (!result.videos.length) {
-      return await sock.sendMessage(msg.key.remoteJid, {
-        text: "❌ Video nahi mila."
-      });
-    }
-
-    const video = result.videos[0];
-    const file = "./temp/video.mp4";
-
-    execSync(`yt-dlp -f "b[ext=mp4]" -o "${file}" "${video.url}"`);
-await sock.sendMessage(msg.key.remoteJid, {
-  text: "📤 Video bhej raha hoon..."
+process.on("unhandledRejection", (reason) => {
+    console.log("❌ Unhandled Rejection:", reason);
 });
-    await sock.sendMessage(msg.key.remoteJid, {
-      video: fs.readFileSync(file),
-      mimetype: "video/mp4",
-      fileName: video.title + ".mp4"
-    });
-
-    fs.unlinkSync(file);
-
-  } catch (err) {
-    console.log(err);
-
-    await sock.sendMessage(msg.key.remoteJid, {
-      text: "❌ Video download failed."
-    });
-  }
-    }
-    if (text === ".sticker" && msg.message.extendedTextMessage) {
-  console.log("Sticker command received");
-      try {
-    const quoted = msg.message.extendedTextMessage.contextInfo;
-
-    if (!quoted || !quoted.quotedMessage) {
-      return await sock.sendMessage(msg.key.remoteJid, {
-        text: "🖼️ Image par reply karke .sticker likho"
-      });
-    }
-
-    const quotedMsg = {
-      key: {
-        remoteJid: msg.key.remoteJid,
-        id: quoted.stanzaId,
-        participant: quoted.participant
-      },
-      message: quoted.quotedMessage
-    };
-
-    const buffer = await downloadMediaMessage(
-      quotedMsg,
-      "buffer",
-      {}
-    );
-        const inputPath = path.join(__dirname, "temp", "input.jpg");
-const outputPath = path.join(__dirname, "temp", "output.webp");
-
-fs.writeFileSync(inputPath, buffer);
-console.log("Image downloaded:", buffer.length);
-    await new Promise((resolve, reject) => {
-  exec(
-    `ffmpeg -y -i "${inputPath}" -vf "scale=512:512:force_original_aspect_ratio=decrease,pad=512:512:(ow-iw)/2:(oh-ih)/2:color=white" "${outputPath}"`,
-    (err) => {
-      if (err) return reject(err);
-
-      sock.sendMessage(msg.key.remoteJid, {
-        sticker: fs.readFileSync(outputPath)
-      }).then(() => {
-        fs.unlinkSync(inputPath);
-        fs.unlinkSync(outputPath);
-        resolve();
-      }).catch(reject);
-    }
-  );
-});   
-
-  } catch (e) {
-    console.log(e);
-  }
-    }
-  });
-}
-
-startBot();
-
- 
