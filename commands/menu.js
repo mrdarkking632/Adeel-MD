@@ -69,10 +69,10 @@ ${greeting}, ${username} 👋
 
 ╭────〔 🤖 BOT INFO 〕────╮
 │ 👤 User    : ${username}
-│ │ 👑 Owner   : ${config.OWNER_NAME}
-│ │ ⚡ Prefix  : ${config.PREFIX}
+│ 👑 Owner   : ${config.OWNER_NAME}
+│ ⚡ Prefix  : ${config.PREFIX}
 │ ☁️ Server  : Heroku
-│ │ 📦 Version : ${config.VERSION}
+│ 📦 Version : ${config.VERSION}
 │ 🟢 Status  : Online
 │ 🕒 Time    : ${time}
 │ 📅 Date    : ${date}
