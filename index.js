@@ -42,7 +42,7 @@ async function startBot() {
         const args = text
             .slice(1)
             .trim()
-            .split(/ +);
+            .split(/ +/);
 
         const commandName = args.shift().toLowerCase();
 
