@@ -53,8 +53,11 @@ module.exports = {
             timeZone: "Asia/Karachi"
         });
 
-        await sock.sendMessage(msg.key.remoteJid, {
-            text: `
+    const imagePath = path.join(__dirname, "../media/menu/menu.jpg");
+
+await sock.sendMessage(msg.key.remoteJid, {
+    image: { url: imagePath },
+    caption: `
 ╭────────────────────────╮
 │ 👑 𝗔𝗗𝗘𝗘𝗟-𝗠𝗗 👑
 │ 『 𝗣𝗥𝗘𝗠𝗜𝗨𝗠 𝗘𝗗𝗜𝗧𝗜𝗢𝗡 』
