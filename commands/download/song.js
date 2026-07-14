@@ -47,7 +47,21 @@ module.exports = {
 
             await sock.sendMessage(msg.key.remoteJid, {
                 text:
-                                        .audioBitrate(128)
+`🎵 Downloading...
+
+📀 ${video.title}
+⏳ ${video.timestamp}`
+            });
+
+            await new Promise((resolve, reject) => {
+
+                ffmpeg(
+                    ytdl(video.url, {
+                        quality: "highestaudio",
+                        filter: "audioonly"
+                    })
+                )
+                                    .audioBitrate(128)
                     .save(output)
                     .on("end", resolve)
                     .on("error", reject);
