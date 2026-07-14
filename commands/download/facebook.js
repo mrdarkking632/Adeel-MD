@@ -37,3 +37,13 @@ module.exports = {
                 video: { url: video },
                 caption: "✅ Facebook Downloaded\n\n👑 Adeel-MD"
             });
+
+        } catch (e) {
+            console.log(e);
+
+            await sock.sendMessage(msg.key.remoteJid, {
+                text: "❌ Facebook Download Failed."
+            });
+        }
+    }
+};
