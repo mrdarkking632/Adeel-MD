@@ -7,14 +7,14 @@ module.exports = {
 
         if (!args.length) {
             return await sock.sendMessage(msg.key.remoteJid, {
-                text: "❌ Usage:\n.video Pasoori"
+                text: "❌ Usage:\n.video song name"
             });
         }
 
         const query = args.join(" ");
 
         await sock.sendMessage(msg.key.remoteJid, {
-            text: "🔍 Searching video..."
+            text: "🔍 Searching videos..."
         });
 
         try {
@@ -23,26 +23,28 @@ module.exports = {
 
             if (!search.videos.length) {
                 return await sock.sendMessage(msg.key.remoteJid, {
-                    text: "❌ No video found."
+                    text: "❌ No results found."
                 });
             }
 
-            const video = search.videos[0];
+            const videos = search.videos.slice(0, 5);
+
+            let text = `🎬 *Adeel-MD Video Search*\n\n`;
+
+            videos.forEach((v, i) => {
+                text += 
+`${i + 1}. ${v.title}
+
+👤 ${v.author.name}
+⏱️ ${v.timestamp}
+👀 ${v.views}
+🔗 ${v.url}
+
+`;
+            });
 
             await sock.sendMessage(msg.key.remoteJid, {
-                image: {
-                    url: video.thumbnail
-                },
-                caption:
-`🎬 *${video.title}*
-
-👤 Channel: ${video.author.name}
-⏱️ Duration: ${video.timestamp}
-👀 Views: ${video.views}
-
-🔗 ${video.url}
-
-⚠️ Video download module pending.`
+                text: text + "👑 Powered By Adeel-MD"
             });
 
         } catch (err) {
