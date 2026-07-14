@@ -18,7 +18,7 @@ module.exports = {
             });
 
             const data = await igdl(url);
-
+console.log(JSON.stringify(data, null, 2));
             const video =
                 data.video ||
                 data.url ||
