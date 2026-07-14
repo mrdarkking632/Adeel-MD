@@ -20,10 +20,12 @@ module.exports = {
             const data = await igdl(url);
 console.log(JSON.stringify(data, null, 2));
             const video =
-                data.video ||
-                data.url ||
-                data[0]?.url ||
-                data[0]?.video;
+    data?.result?.[0]?.url ||
+    data?.result?.[0]?.video ||
+    data?.video ||
+    data?.url ||
+    data?.[0]?.url ||
+    data?.[0]?.video;
 
             if (!video) {
                 throw new Error("Video not found");
