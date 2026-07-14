@@ -34,4 +34,12 @@ module.exports = {
                 caption: "✅ Instagram Downloaded\n\n👑 Adeel-MD"
             });
 
-       
+        } catch (e) {
+            console.log(e);
+
+            await sock.sendMessage(msg.key.remoteJid, {
+                text: "❌ Instagram Download Failed."
+            });
+        }
+    }
+};
