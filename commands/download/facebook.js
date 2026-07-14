@@ -22,12 +22,14 @@ module.exports = {
             console.log(JSON.stringify(data, null, 2));
 
             const video =
-                data?.result?.url ||
-                data?.result?.video ||
-                data?.result?.[0]?.url ||
-                data?.result?.[0]?.video ||
-                data?.url ||
-                data?.video;
+    data?.HD ||
+    data?.Normal_video ||
+    data?.result?.url ||
+    data?.result?.video ||
+    data?.result?.[0]?.url ||
+    data?.result?.[0]?.video ||
+    data?.url ||
+    data?.video;
 
             if (!video) {
                 throw new Error("Video not found");
