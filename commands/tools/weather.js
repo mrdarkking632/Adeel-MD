@@ -1,3 +1,5 @@
+const axios = require("axios");
+
 module.exports = {
     name: "weather",
 
@@ -6,35 +8,57 @@ module.exports = {
         const city = args.join(" ");
 
         if (!city) {
-            return sock.sendMessage(msg.key.remoteJid, {
+            return await sock.sendMessage(msg.key.remoteJid, {
                 text: "🌤️ Example:\n.weather Lahore"
             });
         }
 
         try {
 
-            const res = await fetch(
-                `https://wttr.in/${encodeURIComponent(city)}?format=3`
+            const apiKey = process.env.OPENWEATHER_API_KEY;
+
+            if (!apiKey) {
+                return await sock.sendMessage(msg.key.remoteJid, {
+                    text: "❌ OPENWEATHER_API_KEY not found in .env"
+                });
+            }
+
+            const { data } = await axios.get(
+                "https://api.openweathermap.org/data/2.5/weather",
+                {
+                    params: {
+                        q: city,
+                        appid: apiKey,
+                        units: "metric"
+                    }
+                }
             );
 
-            const data = await res.text();
-
             await sock.sendMessage(msg.key.remoteJid, {
-                text: `🌤️ Adeel-MD Weather
+                text:
+`🌤️ *Adeel-MD Weather*
 
-📍 City: ${city}
+📍 City: ${data.name}, ${data.sys.country}
 
-${data}
+🌡️ Temperature: ${data.main.temp}°C
+🥵 Feels Like: ${data.main.feels_like}°C
+💧 Humidity: ${data.main.humidity}%
+🌬️ Wind Speed: ${data.wind.speed} m/s
+☁️ Condition: ${data.weather[0].main}
+📝 Description: ${data.weather[0].description}
 
-🥸 Powered By Adeel-MD`
+👑 Powered By Adeel-MD`
             });
 
-        } catch (e) {
+        } catch (err) {
+
+            console.log(err.response?.data || err.message);
 
             await sock.sendMessage(msg.key.remoteJid, {
-                text: "❌ Weather service error"
+                text: "❌ City not found or Weather API error."
             });
 
         }
+
     }
 };
