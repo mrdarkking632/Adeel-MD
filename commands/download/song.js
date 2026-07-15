@@ -3,9 +3,7 @@ const path = require("path");
 const yts = require("yt-search");
 const ytdl = require("@distube/ytdl-core");
 const ffmpeg = require("fluent-ffmpeg");
-const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
 
-ffmpeg.setFfmpegPath(ffmpegPath);
 
 module.exports = {
     name: "song",
