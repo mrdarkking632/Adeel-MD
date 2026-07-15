@@ -54,10 +54,11 @@ module.exports = {
             await new Promise((resolve, reject) => {
 
                 ffmpeg(
-                    ytdl(video.url, {
-                        quality: "highestaudio",
-                        filter: "audioonly"
-                    })
+                 ytdl(video.url, {
+    filter: "audioonly",
+    quality: "highestaudio",
+    highWaterMark: 1 << 25
+})
                 )                    .audioBitrate(128)
                     .save(output)
                     .on("end", resolve)
