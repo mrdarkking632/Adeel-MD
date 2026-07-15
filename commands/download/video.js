@@ -49,7 +49,7 @@ module.exports = {
             });
 
             exec(
-                `yt-dlp -f "mp4" -o "${output}" "${video.url}"`,
+               `yt-dlp --js-runtimes deno -f "best[ext=mp4]" -o "${output}" "${video.url}"` 
                 async (error) => {
 
                     if (error) {
