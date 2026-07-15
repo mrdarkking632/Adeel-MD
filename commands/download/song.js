@@ -1,60 +1,93 @@
+const fs = require("fs");
+const path = require("path");
 const yts = require("yt-search");
+const ytdl = require("@distube/ytdl-core");
+const ffmpeg = require("fluent-ffmpeg");
+const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
+
+ffmpeg.setFfmpegPath(ffmpegPath);
 
 module.exports = {
     name: "song",
 
     async execute(sock, msg, args) {
 
-        if (!args.length) {
+        const query = args.join(" ");
+
+        if (!query) {
             return await sock.sendMessage(msg.key.remoteJid, {
-                text: "❌ Usage:\n.song Believer"
+                text:
+`❌ Example
+
+.song pasoori`
             });
         }
 
-        const query = args.join(" ");
-
-        await sock.sendMessage(msg.key.remoteJid, {
-            text: "🔍 Searching songs..."
-        });
-
         try {
+
+            await sock.sendMessage(msg.key.remoteJid, {
+                text: "🔎 Searching YouTube..."
+            });
 
             const search = await yts(query);
 
             if (!search.videos.length) {
                 return await sock.sendMessage(msg.key.remoteJid, {
-                    text: "❌ No results found."
+                    text: "❌ Song not found."
                 });
             }
 
-            const songs = search.videos.slice(0, 5);
+            const video = search.videos[0];
 
-            let text = `🎵 *Adeel-MD Song Search*\n\n`;
-
-            songs.forEach((s, i) => {
-                text += `${i + 1}. ${s.title}
-
-👤 ${s.author.name}
-⏱️ ${s.timestamp}
-👀 ${s.views}
-🔗 ${s.url}
-
-`;
-            });
+            const output = path.join(
+                __dirname,
+                "../../temp",
+                `${Date.now()}.mp3`
+            );
 
             await sock.sendMessage(msg.key.remoteJid, {
-                text: text + "👑 Powered By Adeel-MD"
+                text:
+`🎵 Downloading...
+
+📀 ${video.title}
+⏳ ${video.timestamp}`
             });
+
+            await new Promise((resolve, reject) => {
+
+                ffmpeg(
+                    ytdl(video.url, {
+                        quality: "highestaudio",
+                        filter: "audioonly"
+                    })
+                )                    .audioBitrate(128)
+                    .save(output)
+                    .on("end", resolve)
+                    .on("error", reject);
+
+            });
+
+            await sock.sendMessage(
+                msg.key.remoteJid,
+                {
+                    audio: fs.readFileSync(output),
+                    mimetype: "audio/mpeg",
+                    fileName: `${video.title}.mp3`
+                }
+            );
+
+            fs.unlinkSync(output);
 
         } catch (err) {
 
-            console.log("Song Error:", err);
+            console.log(err);
 
             await sock.sendMessage(msg.key.remoteJid, {
-                text: "❌ Song search failed."
+                text: "❌ Song download failed."
             });
 
         }
 
     }
+
 };
