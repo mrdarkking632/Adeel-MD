@@ -1,9 +1,7 @@
 const fs = require("fs");
 const path = require("path");
+const { exec } = require("child_process");
 const yts = require("yt-search");
-const ytdl = require("@distube/ytdl-core");
-const ffmpeg = require("fluent-ffmpeg");
-
 
 module.exports = {
     name: "song",
@@ -13,24 +11,23 @@ module.exports = {
         const query = args.join(" ");
 
         if (!query) {
-            return await sock.sendMessage(msg.key.remoteJid, {
-                text:
-`❌ Example
-
-.song pasoori`
+            return sock.sendMessage(msg.key.remoteJid, {
+                text: "❌ Example:\n.song pasoori"
             });
         }
 
+        const jid = msg.key.remoteJid;
+
         try {
 
-            await sock.sendMessage(msg.key.remoteJid, {
+            await sock.sendMessage(jid, {
                 text: "🔎 Searching YouTube..."
             });
 
             const search = await yts(query);
 
             if (!search.videos.length) {
-                return await sock.sendMessage(msg.key.remoteJid, {
+                return sock.sendMessage(jid, {
                     text: "❌ Song not found."
                 });
             }
@@ -43,7 +40,7 @@ module.exports = {
                 `${Date.now()}.mp3`
             );
 
-            await sock.sendMessage(msg.key.remoteJid, {
+            await sock.sendMessage(jid, {
                 text:
 `🎵 Downloading...
 
@@ -51,42 +48,36 @@ module.exports = {
 ⏳ ${video.timestamp}`
             });
 
-            await new Promise((resolve, reject) => {
+            exec(
+                `yt-dlp -x --audio-format mp3 -o "${output}" "${video.url}"`,
+                async (error) => {
 
-                ffmpeg(
-                 ytdl(video.url, {
-    filter: "audioonly",
-    quality: "highestaudio",
-    highWaterMark: 1 << 25
-})
-                )                    .audioBitrate(128)
-                    .save(output)
-                    .on("end", resolve)
-                    .on("error", reject);
+                    if (error) {
+                        console.log(error);
 
-            });
+                        return sock.sendMessage(jid, {
+                            text: "❌ Song download failed."
+                        });
+                    }
 
-            await sock.sendMessage(
-                msg.key.remoteJid,
-                {
-                    audio: fs.readFileSync(output),
-                    mimetype: "audio/mpeg",
-                    fileName: `${video.title}.mp3`
+                    await sock.sendMessage(jid, {
+                        audio: fs.readFileSync(output),
+                        mimetype: "audio/mpeg",
+                        fileName: `${video.title}.mp3`
+                    });
+
+                    fs.unlinkSync(output);
                 }
             );
-
-            fs.unlinkSync(output);
 
         } catch (err) {
 
             console.log(err);
 
-            await sock.sendMessage(msg.key.remoteJid, {
-                text: "❌ Song download failed."
+            await sock.sendMessage(jid, {
+                text: "❌ Error occurred."
             });
 
         }
-
     }
-
 };
