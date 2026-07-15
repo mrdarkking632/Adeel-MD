@@ -1,3 +1,6 @@
+const fs = require("fs");
+const path = require("path");
+const { exec } = require("child_process");
 const yts = require("yt-search");
 
 module.exports = {
@@ -5,54 +8,73 @@ module.exports = {
 
     async execute(sock, msg, args) {
 
-        if (!args.length) {
-            return await sock.sendMessage(msg.key.remoteJid, {
-                text: "❌ Usage:\n.video song name"
+        const query = args.join(" ");
+
+        if (!query) {
+            return sock.sendMessage(msg.key.remoteJid, {
+                text: "❌ Example:\n.video pasoori"
             });
         }
 
-        const query = args.join(" ");
-
-        await sock.sendMessage(msg.key.remoteJid, {
-            text: "🔍 Searching videos..."
-        });
+        const jid = msg.key.remoteJid;
 
         try {
+
+            await sock.sendMessage(jid, {
+                text: "🔎 Searching video..."
+            });
 
             const search = await yts(query);
 
             if (!search.videos.length) {
-                return await sock.sendMessage(msg.key.remoteJid, {
-                    text: "❌ No results found."
+                return sock.sendMessage(jid, {
+                    text: "❌ Video not found."
                 });
             }
 
-            const videos = search.videos.slice(0, 5);
+            const video = search.videos[0];
 
-            let text = `🎬 *Adeel-MD Video Search*\n\n`;
+            const output = path.join(
+                __dirname,
+                "../../temp",
+                `${Date.now()}.mp4`
+            );
 
-            videos.forEach((v, i) => {
-                text += 
-`${i + 1}. ${v.title}
+            await sock.sendMessage(jid, {
+                text:
+`🎬 Downloading...
 
-👤 ${v.author.name}
-⏱️ ${v.timestamp}
-👀 ${v.views}
-🔗 ${v.url}
-
-`;
+📀 ${video.title}
+⏳ ${video.timestamp}`
             });
 
-            await sock.sendMessage(msg.key.remoteJid, {
-                text: text + "👑 Powered By Adeel-MD"
-            });
+            exec(
+                `yt-dlp -f "mp4" -o "${output}" "${video.url}"`,
+                async (error) => {
+
+                    if (error) {
+                        console.log(error);
+
+                        return sock.sendMessage(jid, {
+                            text: "❌ Video download failed."
+                        });
+                    }
+
+                    await sock.sendMessage(jid, {
+                        video: fs.readFileSync(output),
+                        caption: `🎬 ${video.title}`
+                    });
+
+                    fs.unlinkSync(output);
+                }
+            );
 
         } catch (err) {
 
-            console.log("Video Error:", err);
+            console.log(err);
 
-            await sock.sendMessage(msg.key.remoteJid, {
-                text: "❌ Video search failed."
+            await sock.sendMessage(jid, {
+                text: "❌ Error occurred."
             });
 
         }
