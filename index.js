@@ -90,7 +90,15 @@ messageDB.save(msg.key.id, msg);
 
     });
     sock.ev.on("messages.update", async (updates) => {
+    console.log("MESSAGES.UPDATE");
+    console.log(JSON.stringify(updates, null, 2));
+
     await antiDelete(sock, updates);
+});
+
+sock.ev.on("messages.delete", (updates) => {
+    console.log("MESSAGES.DELETE");
+    console.log(JSON.stringify(updates, null, 2));
 });
 }
    startBot();
