@@ -2,23 +2,19 @@ const messages = new Map();
 
 function save(id, message) {
 
-    // Delete notification save nahi karni
-    if (message.message?.protocolMessage) {
-        return;
-    }
+    // Ignore delete notifications
+    if (message.message?.protocolMessage) return;
 
-    messages.set(id, message);
+    const data = {
+        id,
+        message,
+        timestamp: Date.now()
+    };
+
+    messages.set(id, data);
 
     if (message.key?.id) {
-        messages.set(message.key.id, message);
-    }
-
-    if (message.message?.imageMessage ||
-        message.message?.videoMessage ||
-        message.message?.conversation ||
-        message.message?.extendedTextMessage) {
-
-        messages.set(id, message);
+        messages.set(message.key.id, data);
     }
 
     if (messages.size > 1000) {
@@ -28,7 +24,8 @@ function save(id, message) {
 }
 
 function get(id) {
-    return messages.get(id);
+    const data = messages.get(id);
+    return data ? data.message : null;
 }
 
 module.exports = {
