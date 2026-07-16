@@ -3,8 +3,15 @@ const messages = new Map();
 function save(id, message) {
     messages.set(id, message);
 
-    // limit (memory safe)
-    if (messages.size > 500) {
+    // also save protocol referenced messages
+    if (message.message?.protocolMessage?.key?.id) {
+        messages.set(
+            message.message.protocolMessage.key.id,
+            message
+        );
+    }
+
+    if (messages.size > 1000) {
         const firstKey = messages.keys().next().value;
         messages.delete(firstKey);
     }
