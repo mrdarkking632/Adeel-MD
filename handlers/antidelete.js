@@ -13,7 +13,8 @@ async function antiDelete(sock, updates) {
     update.key.id;
 
 const msg = messageDB.get(deletedId);
-
+console.log("DELETE ID:", deletedId);
+console.log("FOUND MSG:", msg ? Object.keys(msg.message || {}) : "NOT FOUND");
         if (!msg) continue;
 
         const sender =
