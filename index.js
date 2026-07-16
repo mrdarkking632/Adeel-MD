@@ -92,6 +92,7 @@ sock.ev.on("messages.update", (updates) => {
     console.log("DELETE EVENT:");
     console.log(JSON.stringify(updates, null, 2));
 });
+}
    startBot();
 process.on("uncaughtException", (err) => {
     console.log("❌ Error:", err);
