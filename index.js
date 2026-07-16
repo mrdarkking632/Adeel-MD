@@ -89,13 +89,7 @@ messageDB.save(msg.key.id, msg);
 
     });
 
-    sock.ev.on("messages.update", async (updates) => {
-        await messageHandler(sock, updates);
-    });
-
-}
-
-startBot();
+   startBot();
 process.on("uncaughtException", (err) => {
     console.log("❌ Error:", err);
 });
