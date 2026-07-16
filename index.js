@@ -13,6 +13,7 @@ const { loadCommands, commands } = require("./handlers/command");
 const connectionHandler = require("./handlers/connection");
 const messageDB = require("./database/messages");
 const messageHandler = require("./handlers/message");
+const antiDelete = require("./handlers/antidelete");1
 loadCommands();
 
 async function startBot() {
@@ -88,9 +89,8 @@ messageDB.save(msg.key.id, msg);
                 }
 
     });
-sock.ev.on("messages.update", (updates) => {
-    console.log("DELETE EVENT:");
-    console.log(JSON.stringify(updates, null, 2));
+    sock.ev.on("messages.update", async (updates) => {
+    await antiDelete(sock, updates);
 });
 }
    startBot();
