@@ -19,11 +19,23 @@ const msg = messageDB.get(deletedId);
         // Ignore owner's deleted messages
         if (sender === OWNER) continue;
 
-        const text =
-            msg.message?.conversation ||
-            msg.message?.extendedTextMessage?.text ||
-            "📷 Media Message";
+        let text =
+    msg.message?.conversation ||
+    msg.message?.extendedTextMessage?.text;
 
+if (!text) {
+    if (msg.message?.imageMessage) {
+        text = "🖼️ Image Message";
+    } else if (msg.message?.videoMessage) {
+        text = "🎥 Video Message";
+    } else if (msg.message?.stickerMessage) {
+        text = "🌟 Sticker Message";
+    } else if (msg.message?.audioMessage) {
+        text = "🎵 Audio Message";
+    } else {
+        text = "📷 Media Message";
+    }
+}
         await sock.sendMessage(update.key.remoteJid, {
             text:
 `🚫 *ANTI DELETE*
