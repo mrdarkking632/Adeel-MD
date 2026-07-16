@@ -1,4 +1,5 @@
 const messages = new Map();
+const lastMessages = new Map();
 
 function save(id, message) {
 
@@ -6,9 +7,9 @@ function save(id, message) {
 
     messages.set(id, message);
 
-    if (message.key?.remoteJidAlt) {
-        messages.set(
-            message.key.remoteJidAlt + id,
+    if (message.key?.remoteJid) {
+        lastMessages.set(
+            message.key.remoteJid,
             message
         );
     }
@@ -16,9 +17,19 @@ function save(id, message) {
     console.log("SAVED ID:", id);
 }
 
-function get(id) {
-    return messages.get(id);
+function get(id, jid) {
+
+    let msg = messages.get(id);
+
+    if (msg) return msg;
+
+    if (jid && lastMessages.has(jid)) {
+        return lastMessages.get(jid);
+    }
+
+    return null;
 }
+
 module.exports = {
     save,
     get
