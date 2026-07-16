@@ -5,12 +5,16 @@ const OWNER = "923288835468@s.whatsapp.net";
 async function antiDelete(sock, updates) {
     for (const update of updates) {
 
-        if (!update.update?.message) continue;
+        if (!update.update?.messageStubType) continue;
 
-        const msg = messageDB.get(update.key.id);
+        const deletedId = update.update?.key?.id || update.key.id;
+const msg = messageDB.get(deletedId);
         if (!msg) continue;
 
-        const sender = update.key.participant || update.key.remoteJid;
+        const sender =
+    update.key.remoteJidAlt ||
+    update.update?.key?.remoteJidAlt ||
+    update.key.remoteJid;
 
         // Ignore owner's deleted messages
         if (sender === OWNER) continue;
