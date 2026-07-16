@@ -1,19 +1,24 @@
 const messages = new Map();
 
 function save(id, message) {
-    // Save normal message id
-    messages.set(id, message);
 
-    // Save protocol message referenced id
-    const protocolKey = message.message?.protocolMessage?.key?.id;
-
-    if (protocolKey) {
-        messages.set(protocolKey, message);
+    // Delete notification save nahi karni
+    if (message.message?.protocolMessage) {
+        return;
     }
 
-    // Save alternative id if available (LID mode)
+    messages.set(id, message);
+
     if (message.key?.id) {
         messages.set(message.key.id, message);
+    }
+
+    if (message.message?.imageMessage ||
+        message.message?.videoMessage ||
+        message.message?.conversation ||
+        message.message?.extendedTextMessage) {
+
+        messages.set(id, message);
     }
 
     if (messages.size > 1000) {
