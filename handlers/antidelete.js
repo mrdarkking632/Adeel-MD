@@ -8,34 +8,36 @@ async function antiDelete(sock, updates) {
         if (!update.update?.messageStubType) continue;
 
         const deletedId = update.update?.key?.id || update.key.id;
-const msg = messageDB.get(deletedId);
+        const msg = messageDB.get(deletedId);
+
         if (!msg) continue;
 
         const sender =
-    update.key.remoteJidAlt ||
-    update.update?.key?.remoteJidAlt ||
-    update.key.remoteJid;
+            update.key.remoteJidAlt ||
+            update.update?.key?.remoteJidAlt ||
+            update.key.remoteJid;
 
-        // Ignore owner's deleted messages
+        // Owner delete ignore
         if (sender === OWNER) continue;
 
         let text =
-    msg.message?.conversation ||
-    msg.message?.extendedTextMessage?.text;
+            msg.message?.conversation ||
+            msg.message?.extendedTextMessage?.text;
 
-if (!text) {
-    if (msg.message?.imageMessage) {
-        text = "🖼️ Image Message";
-    } else if (msg.message?.videoMessage) {
-        text = "🎥 Video Message";
-    } else if (msg.message?.stickerMessage) {
-        text = "🌟 Sticker Message";
-    } else if (msg.message?.audioMessage) {
-        text = "🎵 Audio Message";
-    } else {
-        text = "📷 Media Message";
-    }
-}
+        if (!text) {
+            if (msg.message?.imageMessage) {
+                text = "🖼️ Image Message";
+            } else if (msg.message?.videoMessage) {
+                text = "🎥 Video Message";
+            } else if (msg.message?.stickerMessage) {
+                text = "🌟 Sticker Message";
+            } else if (msg.message?.audioMessage) {
+                text = "🎵 Audio Message";
+            } else {
+                text = "📷 Media Message";
+            }
+        }
+
         await sock.sendMessage(update.key.remoteJid, {
             text:
 `🚫 *ANTI DELETE*
