@@ -7,8 +7,12 @@ async function antiDelete(sock, updates) {
 
         if (!update.update?.messageStubType) continue;
 
-        const deletedId = update.update?.key?.id || update.key.id;
-        const msg = messageDB.get(deletedId);
+        const deletedId =
+    update.update?.key?.id ||
+    update.update?.message?.protocolMessage?.key?.id ||
+    update.key.id;
+
+const msg = messageDB.get(deletedId);
 
         if (!msg) continue;
 
