@@ -12,6 +12,7 @@ const qrcode = require("qrcode-terminal");
 const { loadCommands, commands } = require("./handlers/command");
 const connectionHandler = require("./handlers/connection");
 const messageDB = require("./database/messages");
+const messageHandler = require("./handlers/message");
 loadCommands();
 
 async function startBot() {
@@ -84,13 +85,17 @@ messageDB.save(msg.key.id, msg);
                 }
             );
 
-        }
+                }
 
     });
-    }
+
+    sock.ev.on("messages.update", async (updates) => {
+        await messageHandler(sock, updates);
+    });
+
+}
 
 startBot();
-
 process.on("uncaughtException", (err) => {
     console.log("❌ Error:", err);
 });
