@@ -1,14 +1,19 @@
 const messages = new Map();
 
 function save(id, message) {
+    // Save normal message id
     messages.set(id, message);
 
-    // also save protocol referenced messages
-    if (message.message?.protocolMessage?.key?.id) {
-        messages.set(
-            message.message.protocolMessage.key.id,
-            message
-        );
+    // Save protocol message referenced id
+    const protocolKey = message.message?.protocolMessage?.key?.id;
+
+    if (protocolKey) {
+        messages.set(protocolKey, message);
+    }
+
+    // Save alternative id if available (LID mode)
+    if (message.key?.id) {
+        messages.set(message.key.id, message);
     }
 
     if (messages.size > 1000) {
