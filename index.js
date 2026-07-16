@@ -47,6 +47,8 @@ if (!state.creds.registered) {
 
         const msg = messages[0];
 messageDB.save(msg.key.id, msg);
+            console.log("SAVED MESSAGE TYPE:");
+console.log(Object.keys(msg.message || {}));
         if (!msg.message) return;
 
         const text =
