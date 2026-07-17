@@ -13,7 +13,8 @@ const { loadCommands, commands } = require("./handlers/command");
 const connectionHandler = require("./handlers/connection");
 const messageDB = require("./database/messages");
 const messageHandler = require("./handlers/message");
-const antiDelete = require("./handlers/antidelete");1
+const antiDelete = require("./handlers/antidelete");
+const autoSaveContact = require("./handlers/autoSaveContact");
 loadCommands();
 
 async function startBot() {
