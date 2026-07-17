@@ -4,7 +4,7 @@ const OWNER = "923288835468@s.whatsapp.net";
 
 async function antiDelete(sock, updates) {
     for (const update of updates) {
-
+if (update.key.fromMe) continue;
         if (!update.update?.messageStubType) continue;
 
         const deletedId =
