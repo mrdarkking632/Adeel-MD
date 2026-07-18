@@ -17,12 +17,7 @@ async function autoSaveContact(sock, msg) {
 
         if (saved.has(number)) return;
 
-        const profile = await sock.fetchStatus(jid).catch(() => null);
-
-        const name =
-            msg.pushName ||
-            profile?.name ||
-            number;
+        const name = msg.pushName || number;
 
         await saveContact(number, name);
 
