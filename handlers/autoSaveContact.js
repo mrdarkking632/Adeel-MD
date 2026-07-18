@@ -13,7 +13,7 @@ async function autoSaveContact(sock, msg) {
     msg.key.participant ||
     msg.key.remoteJid;
 
-        if (!jid || !jid.endsWith("@s.whatsapp.net")) return;
+        if (!jid || (!jid.endsWith("@s.whatsapp.net") && !jid.endsWith("@lid"))) return;
 
         const number = "+" + jid.split("@")[0];
 
