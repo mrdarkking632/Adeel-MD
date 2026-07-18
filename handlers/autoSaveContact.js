@@ -7,7 +7,11 @@ async function autoSaveContact(sock, msg) {
         if (!msg.message) return;
         if (msg.key.fromMe) return;
 
-        const jid = msg.key.remoteJid;
+     const jid =
+    msg.key.remoteJidAlt ||
+    msg.key.participantAlt ||
+    msg.key.participant ||
+    msg.key.remoteJid;
 
         if (!jid || !jid.endsWith("@s.whatsapp.net")) return;
 
