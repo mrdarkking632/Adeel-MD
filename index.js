@@ -48,6 +48,7 @@ if (!state.creds.registered) {
 
         const msg = messages[0];
             await autoSaveContact(sock, msg);
+            // await autoSaveContact(sock, msg);
 messageDB.save(msg.key.id, msg);
             console.log("SAVED MESSAGE TYPE:");
 console.log(Object.keys(msg.message || {}));
